@@ -221,6 +221,26 @@ export function registerOfframpTools(server: McpServer, key: string | undefined)
       )
     }
   )
+
+  server.registerTool(
+    'offramp_list_institutions',
+    {
+      title: 'List the banks an NGN recipient can hold',
+      description:
+        'The banks and mobile money providers an NGN recipient can hold, each with the code that goes in recipient.institution. Those codes are opaque and cannot be guessed from a bank name, and a wrong one fails the order — look the code up here rather than hardcoding it. NGN only: KES, GHS and UGX recipients are identified by method plus a phone number, so no list exists for them. The list is near-static, so cache it rather than calling before every order.',
+      inputSchema: z.object({
+        currency: z
+          .enum(['NGN'])
+          .optional()
+          .describe('Defaults to NGN, currently the only currency with institution codes.'),
+      }),
+      annotations: { readOnlyHint: true },
+    },
+    async ({ currency }) => {
+      if (!key) return missingKey('merchant')
+      return render(await call({ path: '/api/offramp/institutions', key, query: { currency } }))
+    }
+  )
 }
 
 /** Re-exported so the knowledge tools and these schemas cannot disagree. */

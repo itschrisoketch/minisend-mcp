@@ -110,6 +110,22 @@ export const ENDPOINTS: EndpointDoc[] = [
       'The payment prompt fires at creation, at a real phone. One-shot: if the customer cancels, create a NEW order rather than retrying this one.',
   },
   {
+    id: 'offramp_list_institutions',
+    method: 'GET',
+    path: '/api/offramp/institutions',
+    product: 'offramp',
+    summary: 'The banks an NGN recipient can hold, with their institution codes.',
+    auth: 'ms_live_ key, offramp scope',
+    request: { currency: "string, optional. Defaults to NGN — the only accepted value." },
+    response: {
+      currency: 'string.',
+      count: 'number.',
+      institutions: 'array of { code, name, type }. `code` is what goes in recipient.institution.',
+    },
+    gotcha:
+      'NGN only. KES, GHS and UGX recipients are identified by method plus a phone number, so no list exists for them and a request for one returns 400. The list is near-static and cached for an hour — do not call it before every order.',
+  },
+  {
     id: 'checkout_create_session',
     method: 'POST',
     path: '/api/merchant/checkout',
@@ -123,16 +139,19 @@ export const ENDPOINTS: EndpointDoc[] = [
       customer_email: 'string, optional.',
       settlement_mode: "string, optional. 'fiat' | 'usdc'. Defaults to the account setting.",
       settlement_chain: "string, optional. BASE | ETH | MATIC | ARB | OP | AVAX. Only with 'usdc'.",
+      redirect_url:
+        'string, optional. Where the customer goes once paid. Absolute https (http only for localhost), max 2048 chars, no embedded credentials. return_url and success_url are aliases.',
     },
     response: {
       session_id: 'string.',
       checkout_url: 'string. Send the customer here.',
       deposit_address: 'string.',
       settlement_chain: 'string. What was ACTUALLY pinned — read it back.',
+      redirect_url: 'string, present only when one was stored. Read back off the saved session.',
       expires_at: 'ISO timestamp, 30 minutes out.',
     },
     gotcha:
-      'Sessions expire 30 minutes after creation, so create one when the customer is ready to pay, not in advance.',
+      'Sessions expire 30 minutes after creation, so create one when the customer is ready to pay, not in advance. If you set redirect_url, the customer comes back with session_id and status appended — status is a query parameter anyone can type, so confirm with the webhook before releasing anything.',
   },
   {
     id: 'wallet_create',
