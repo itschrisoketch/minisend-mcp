@@ -160,7 +160,7 @@ export function registerOfframpTools(server: McpServer, key: string | undefined)
     {
       title: 'Report the USDC transfer for an order',
       description:
-        'Report the on-chain transaction in which you sent this order\'s USDC, which releases the local-currency payout. Only for orders whose instructions asked for it (the Pretium-routed currencies: KES, GHS, UGX). NGN orders are watched automatically and must not be submitted here. Submit only a hash that is already confirmed on Base — a wrong or unconfirmed hash is rejected, and each hash can only be used once, by one order.',
+        'Report the on-chain transaction in which you sent this order\'s USDC, which releases the local-currency payout. Only for orders whose instructions asked for it (KES, GHS, and UGX). NGN orders are watched automatically and must not be submitted here. Submit only a hash that is already confirmed on Base — a wrong or unconfirmed hash is rejected, and each hash can only be used once, by one order.',
       inputSchema: z.object({
         order_id: z.string().describe('The id returned by offramp_create_order.'),
         transaction_hash: z
